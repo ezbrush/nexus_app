@@ -1,6 +1,10 @@
 import { IsString, IsOptional, IsNumber, IsArray } from 'class-validator';
 
 export class ProductDto {
+    @IsOptional()
+    @IsNumber()
+    id?: number;
+
     @IsString()
     title: string;
 

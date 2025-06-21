@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ProductDto } from './dto/product.dto';
-import axios from "axios/index";
 import {InjectModel} from "@nestjs/sequelize";
 import {Product} from "./entities/product.entity";
 import { plainToInstance } from 'class-transformer';
+import axios from 'axios';
 
 const URL_DUMMYJSON = 'https://dummyjson.com/products';
 
@@ -31,7 +31,7 @@ export class ProductsService {
   }
 
   async addToHistory(product: ProductDto) {
-    await this.productModel.destroy({ where: { productId: product.id } });
+    await this.productModel.destroy({ where: { id: product.id } });
 
     await this.productModel.create(<Product> product);
   }
