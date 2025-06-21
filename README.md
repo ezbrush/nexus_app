@@ -30,6 +30,11 @@
 ```bash
 $ yarn install
 ```
+## Migrations Database
+```bash
+$ yarn migrate
+$ yarn seed
+```
 
 ## Compile and run the project
 
