@@ -1,26 +1,46 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductDto } from './dto/product.dto';
+import axios from "axios/index";
+import {InjectModel} from "@nestjs/sequelize";
+import {Product} from "./entities/product.entity";
+import { plainToInstance } from 'class-transformer';
+
+const URL_DUMMYJSON = 'https://dummyjson.com/products';
 
 @Injectable()
 export class ProductsService {
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+
+  constructor(
+      @InjectModel(Product)
+      private productModel: typeof Product,
+  ) {}
+
+
+  async search(q: string){
+    const response = await axios.get(URL_DUMMYJSON + `/search?q=${q}`);
+    return plainToInstance(ProductDto, response.data.products, {
+      excludeExtraneousValues: false,
+    });
   }
 
-  findAll() {
-    return `This action returns all products`;
+  async getProduct(id){
+    const response = await axios.get(URL_DUMMYJSON + `/${id}`);
+    const product = response.data;
+    await this.addToHistory(product);
+    return product;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async addToHistory(product: ProductDto) {
+    await this.productModel.destroy({ where: { productId: product.id } });
+
+    await this.productModel.create(<Product> product);
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async getHistory(limit = 5) {
+    return this.productModel.findAll({
+      limit: limit,
+      order: [['createdAt', 'DESC']],
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
-  }
 }
